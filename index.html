@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แดชบอร์ดสายการผลิต</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6fb;--surface:#fff;--border:#e4e8f4;
+  --accent:#2563eb;--accent2:#7c3aed;
+  --green:#16a34a;--red:#dc2626;--amber:#d97706;
+  --text:#111827;--muted:#6b7280;
+  --shadow:0 1px 8px rgba(30,50,120,0.07);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
+.tl{display:flex;align-items:center;gap:10px;}
+.logo{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.t-title{font-size:14px;font-weight:700;}
+.t-date{font-size:11px;color:var(--muted);margin-left:4px;}
+.tr{display:flex;align-items:center;gap:8px;}
+.dot-live{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;margin-right:4px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.t-update{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
+.btn-ref{padding:6px 13px;background:var(--accent);color:#fff;border:none;border-radius:7px;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:opacity 0.15s;}
+.btn-ref:hover{opacity:0.85;}
+.btn-ref:disabled{opacity:0.45;cursor:not-allowed;}
+
+.page{max-width:1200px;margin:0 auto;padding:18px 18px 40px;}
+.warn{background:#fffbeb;border:1.5px solid #fbbf24;border-radius:9px;padding:9px 14px;font-size:13px;color:#92400e;margin-bottom:16px;display:none;}
+
+/* FILTER BAR */
+.filter-bar{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:13px;padding:14px 16px;
+  margin-bottom:14px;box-shadow:var(--shadow);
+}
+.filter-label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.9px;text-transform:uppercase;margin-bottom:10px;}
+.slot-filter{display:flex;flex-wrap:wrap;gap:6px;}
+.sf-btn{
+  padding:5px 11px;border:1.5px solid var(--border);border-radius:18px;
+  background:var(--bg);color:var(--muted);
+  font-family:'Sarabun',sans-serif;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all 0.15s;
+}
+.sf-btn:hover{border-color:var(--accent);color:var(--accent);}
+.sf-btn.active{border-color:var(--accent);color:var(--accent);background:#eef3ff;}
+.sf-btn.all{border-color:var(--accent2);color:var(--accent2);background:#f5f0ff;}
+
+/* SUMMARY */
+.sum-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;}
+@media(max-width:700px){.sum-row{grid-template-columns:1fr 1fr;}}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:15px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+.sc::before{content:'';position:absolute;top:-14px;right:-14px;width:60px;height:60px;border-radius:50%;opacity:0.07;}
+.sc.b::before{background:var(--accent);}
+.sc.g::before{background:var(--green);}
+.sc.a::before{background:var(--amber);}
+.sc.r::before{background:var(--red);}
+.sc-label{font-size:10.5px;font-weight:700;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:7px;}
+.sc-val{font-size:26px;font-weight:800;font-family:'IBM Plex Mono',monospace;line-height:1;}
+.sc-val.b{color:var(--accent);}
+.sc-val.g{color:var(--green);}
+.sc-val.a{color:var(--amber);}
+.sc-val.r{color:var(--red);}
+.sc-sub{font-size:11.5px;color:var(--muted);margin-top:5px;}
+.prog{margin-top:8px;}
+.prog-bar{height:4px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:3px;}
+.prog-fill{height:100%;border-radius:99px;transition:width 0.6s;}
+.prog-fill.g{background:var(--green);}
+.prog-fill.r{background:var(--red);}
+.prog-lbl{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+@media(max-width:640px){.g2{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:16px;box-shadow:var(--shadow);margin-bottom:12px;}
+.card:last-child{margin-bottom:0;}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.ct{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.9px;text-transform:uppercase;}
+.cb{font-size:11px;background:#f3f4f6;padding:2px 8px;border-radius:18px;color:var(--muted);font-weight:600;}
+.cb.accent{background:#eef3ff;color:var(--accent);}
+
+.dw{display:flex;align-items:center;gap:16px;}
+.donut{position:relative;width:86px;height:86px;flex-shrink:0;}
+.donut svg{transform:rotate(-90deg);}
+.dl{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.dp{font-size:16px;font-weight:800;color:var(--green);font-family:'IBM Plex Mono',monospace;}
+.dt{font-size:9px;color:var(--muted);font-weight:600;}
+.leg{flex:1;display:flex;flex-direction:column;gap:7px;}
+.li{display:flex;align-items:center;justify-content:space-between;}
+.ll{display:flex;align-items:center;gap:6px;font-size:13px;}
+.ld{width:7px;height:7px;border-radius:50%;}
+.lc{font-size:13px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+
+.bc{display:flex;flex-direction:column;gap:7px;}
+.br{display:flex;align-items:center;gap:8px;}
+.bn{font-size:12px;color:var(--muted);width:86px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bt{flex:1;height:18px;background:#f3f4f6;border-radius:5px;overflow:hidden;}
+.bf{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:5px;transition:width 0.6s;min-width:2px;}
+.bv{font-size:11.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;width:34px;text-align:right;flex-shrink:0;}
+
+.nc{display:flex;flex-direction:column;gap:6px;}
+.nr{display:flex;align-items:center;gap:8px;}
+.nn{font-size:12.5px;width:120px;flex-shrink:0;}
+.nt{flex:1;height:14px;background:#f3f4f6;border-radius:4px;overflow:hidden;}
+.nf{height:100%;background:#dbeafe;border-radius:4px;transition:width 0.6s;}
+.nv{font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--accent);width:22px;text-align:right;}
+
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{font-size:10.5px;font-weight:700;color:var(--muted);letter-spacing:0.7px;text-transform:uppercase;padding:6px 9px;text-align:left;border-bottom:2px solid var(--border);}
+.tbl td{padding:9px 9px;font-size:12.5px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:#f9fafb;}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:18px;font-size:11px;font-weight:600;}
+.done{background:#dcfce7;color:var(--green);}
+.pend{background:#fee2e2;color:var(--red);}
+.mono{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);}
+.num{font-family:'IBM Plex Mono',monospace;font-weight:600;}
+.slot-tag{background:#eef3ff;color:var(--accent);padding:2px 7px;border-radius:6px;font-size:11px;font-weight:600;}
+
+.empty{text-align:center;padding:28px;color:var(--muted);}
+.ei{font-size:28px;margin-bottom:6px;}
+.et{font-size:12.5px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tl">
+    <div class="logo">🏭</div>
+    <span class="t-title">แดชบอร์ดสายการผลิต</span>
+    <span class="t-date" id="t-date"></span>
+  </div>
+  <div class="tr">
+    <span class="t-update"><span class="dot-live"></span><span id="t-upd">กำลังโหลด...</span></span>
+    <button class="btn-ref" id="refBtn" onclick="loadData()">⟳ รีเฟรช</button>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="warn" id="warn">
+    ⚠️ <strong>ยังไม่ได้ตั้งค่า URL</strong> — แทนที่ <code>YOUR_APPS_SCRIPT_URL_HERE</code> ด้วย URL จาก Apps Script
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <div class="filter-label">🕐 กรองตามช่วงเวลา</div>
+    <div class="slot-filter" id="slot-filter"></div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="sum-row">
+    <div class="sc b"><div class="sc-label">ยอดกล่อง</div><div class="sc-val b" id="s1">—</div><div class="sc-sub" id="s1s">รายการทั้งหมด</div></div>
+    <div class="sc g"><div class="sc-label">เสร็จแล้ว</div><div class="sc-val g" id="s2">—</div><div class="prog"><div class="prog-lbl"><span id="s2p">0%</span><span>ของทั้งหมด</span></div><div class="prog-bar"><div class="prog-fill g" id="pb1" style="width:0%"></div></div></div></div>
+    <div class="sc a"><div class="sc-label">เวลารวม (นาที)</div><div class="sc-val a" id="s3">—</div><div class="sc-sub" id="s3s">รวมทุกรายการ</div></div>
+    <div class="sc r"><div class="sc-label">ยังไม่เสร็จ</div><div class="sc-val r" id="s4">—</div><div class="prog"><div class="prog-lbl"><span id="s4p">0%</span><span>ของทั้งหมด</span></div><div class="prog-bar"><div class="prog-fill r" id="pb2" style="width:0%"></div></div></div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><span class="ct">🚦 สัดส่วนสถานะ</span><span class="cb accent" id="filter-badge">ทั้งวัน</span></div>
+      <div class="dw">
+        <div class="donut">
+          <svg width="86" height="86" viewBox="0 0 86 86">
+            <circle cx="43" cy="43" r="33" fill="none" stroke="#f3f4f6" stroke-width="9"/>
+            <circle cx="43" cy="43" r="33" fill="none" stroke="#16a34a" stroke-width="9"
+              stroke-dasharray="207.3" stroke-dashoffset="207.3" id="darc"
+              style="transition:stroke-dashoffset 0.7s ease;"/>
+          </svg>
+          <div class="dl"><span class="dp" id="dpct">0%</span><span class="dt">เสร็จ</span></div>
+        </div>
+        <div class="leg">
+          <div class="li"><div class="ll"><div class="ld" style="background:var(--green)"></div>เสร็จแล้ว</div><span class="lc" id="ld1">0</span></div>
+          <div class="li"><div class="ll"><div class="ld" style="background:var(--red)"></div>ยังไม่เสร็จ</div><span class="lc" id="ld2">0</span></div>
+          <div class="li" style="margin-top:5px;padding-top:7px;border-top:1px solid var(--border)">
+            <div class="ll" style="color:var(--muted);font-size:12px;">รวมทั้งหมด</div><span class="lc" id="ld3">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ct">📦 ยอดรายไลน์ (กล่อง)</span><span class="cb accent" id="fb2">ทั้งวัน</span></div>
+      <div class="bc" id="line-bc"><div class="empty"><div class="ei">📊</div><div class="et">กำลังโหลด...</div></div></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><span class="ct">📝 หมายเหตุที่เกิดบ่อย</span><span class="cb accent" id="fb3">ทั้งวัน</span></div>
+      <div class="nc" id="note-c"><div class="empty"><div class="ei">📋</div><div class="et">กำลังโหลด...</div></div></div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ct">🏷 ยอดรายสินค้า (กล่อง)</span><span class="cb accent" id="fb4">ทั้งวัน</span></div>
+      <div class="bc" id="prod-bc"><div class="empty"><div class="ei">📦</div><div class="et">กำลังโหลด...</div></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">⚡ รายการล่าสุด (Live Feed)</span><span class="cb" id="fc">0 รายการ</span></div>
+    <div style="overflow-x:auto;">
+      <table class="tbl">
+        <thead><tr><th>เวลา</th><th>ช่วง</th><th>ไลน์</th><th>โค้ด</th><th>ลูกค้า</th><th>สินค้า</th><th>นาที</th><th>กล่อง</th><th>สถานะ</th><th>หมายเหตุ</th></tr></thead>
+        <tbody id="feed-body"><tr><td colspan="10"><div class="empty"><div class="ei">⏳</div><div class="et">กำลังโหลด...</div></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">📊 สรุปรายช่วงเวลา</span><span class="cb">วันนี้ทุกช่วง</span></div>
+    <div style="overflow-x:auto;">
+      <table class="tbl">
+        <thead><tr><th>ช่วงเวลา</th><th>รายการ</th><th>กล่องรวม</th><th>นาทีรวม</th><th>เสร็จ</th><th>ยังไม่เสร็จ</th></tr></thead>
+        <tbody id="slot-sum-body"><tr><td colspan="6"><div class="empty"><div class="ei">⏳</div><div class="et">กำลังโหลด...</div></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ========================================
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbxn5Rj3nn0V7PMm7M0XP6HwnRmMgFOslFWSFUgwQ7wvJREbyO4pSG6FTUxvFp6YkU_VPg/exec";
+// ========================================
+
+document.getElementById('t-date').textContent =
+  new Date().toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+if (SHEET_URL === "YOUR_APPS_SCRIPT_URL_HERE") {
+  document.getElementById('warn').style.display = 'block';
+}
+
+// สร้าง slot options
+const slots = [];
+for (let h = 7; h < 21; h++) {
+  slots.push(String(h).padStart(2,'0') + ':00 – ' + String(h+1).padStart(2,'0') + ':00');
+}
+
+let activeSlot = 'all';
+let allData = [];
+
+// สร้างปุ่มกรอง
+const filterEl = document.getElementById('slot-filter');
+const allBtn = document.createElement('button');
+allBtn.className = 'sf-btn all active';
+allBtn.textContent = '📋 ทั้งวัน';
+allBtn.onclick = () => setFilter('all', allBtn);
+filterEl.appendChild(allBtn);
+
+slots.forEach(slot => {
+  const btn = document.createElement('button');
+  btn.className = 'sf-btn';
+  btn.textContent = slot;
+  btn.onclick = () => setFilter(slot, btn);
+  filterEl.appendChild(btn);
+});
+
+function setFilter(slot, el) {
+  activeSlot = slot;
+  document.querySelectorAll('.sf-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const label = slot === 'all' ? 'ทั้งวัน' : slot;
+  ['filter-badge','fb2','fb3','fb4'].forEach(id => {
+    document.getElementById(id).textContent = label;
+  });
+  renderData(allData);
+}
+
+function isToday(ts) {
+  const d = new Date(ts), t = new Date();
+  return d.getFullYear()===t.getFullYear() && d.getMonth()===t.getMonth() && d.getDate()===t.getDate();
+}
+function fmtTime(ts) {
+  const d = new Date(ts);
+  return isNaN(d) ? ts : d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+function setDonut(pct) {
+  document.getElementById('darc').style.strokeDashoffset = 207.3 * (1 - pct/100);
+  document.getElementById('dpct').textContent = Math.round(pct) + '%';
+}
+function barHTML(arr, maxV) {
+  if (!arr.length) return '<div class="empty"><div class="ei">📭</div><div class="et">ยังไม่มีข้อมูล</div></div>';
+  return arr.slice(0,6).map(([n,v]) =>
+    `<div class="br"><span class="bn">${n}</span><div class="bt"><div class="bf" style="width:${Math.round(v/maxV*100)}%"></div></div><span class="bv">${v.toLocaleString()}</span></div>`
+  ).join('');
+}
+
+function renderData(rows) {
+  const today = rows.filter(r => r.timestamp && isToday(r.timestamp));
+  const filtered = activeSlot === 'all' ? today : today.filter(r => r.timeSlot === activeSlot);
+
+  const total    = filtered.length;
+  const done     = filtered.filter(r => r.status === 'เสร็จแล้ว').length;
+  const pending  = total - done;
+  const totalMins = filtered.reduce((s,r) => s+(parseFloat(r.minuteCount)||0), 0);
+  const totalQty  = filtered.reduce((s,r) => s+(parseInt(r.dailyTotal)||0), 0);
+  const donePct   = total > 0 ? Math.round(done/total*100) : 0;
+  const pendPct   = total > 0 ? Math.round(pending/total*100) : 0;
+
+  document.getElementById('s1').textContent = totalQty.toLocaleString();
+  document.getElementById('s1s').textContent = total + ' รายการ';
+  document.getElementById('s2').textContent = done;
+  document.getElementById('s2p').textContent = donePct + '%';
+  document.getElementById('pb1').style.width = donePct + '%';
+  document.getElementById('s3').textContent = totalMins.toLocaleString();
+  document.getElementById('s3s').textContent = (totalMins/60).toFixed(1) + ' ชั่วโมง';
+  document.getElementById('s4').textContent = pending;
+  document.getElementById('s4p').textContent = pendPct + '%';
+  document.getElementById('pb2').style.width = pendPct + '%';
+
+  setDonut(donePct);
+  document.getElementById('ld1').textContent = done;
+  document.getElementById('ld2').textContent = pending;
+  document.getElementById('ld3').textContent = total;
+
+  const lm = {};
+  filtered.forEach(r => { const k=r.line||'?'; lm[k]=(lm[k]||0)+(parseInt(r.dailyTotal)||0); });
+  const ls = Object.entries(lm).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('line-bc').innerHTML = barHTML(ls, ls[0]?.[1]||1);
+
+  const pm = {};
+  filtered.forEach(r => { const k=r.product||'?'; pm[k]=(pm[k]||0)+(parseInt(r.dailyTotal)||0); });
+  const ps = Object.entries(pm).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('prod-bc').innerHTML = barHTML(ps, ps[0]?.[1]||1);
+
+  const nm = {};
+  filtered.forEach(r => { if(!r.notes) return; const k=r.notes.replace(/^อื่นๆ:.*/,'อื่นๆ'); nm[k]=(nm[k]||0)+1; });
+  const ns = Object.entries(nm).sort((a,b)=>b[1]-a[1]);
+  const maxN = ns[0]?.[1]||1;
+  document.getElementById('note-c').innerHTML = ns.length === 0
+    ? '<div class="empty"><div class="ei">📋</div><div class="et">ยังไม่มีข้อมูล</div></div>'
+    : ns.map(([n,v])=>`<div class="nr"><span class="nn">${n}</span><div class="nt"><div class="nf" style="width:${Math.round(v/maxN*100)}%"></div></div><span class="nv">${v}</span></div>`).join('');
+
+  const feed = [...filtered].reverse().slice(0,20);
+  document.getElementById('fc').textContent = filtered.length + ' รายการ';
+  document.getElementById('feed-body').innerHTML = feed.length === 0
+    ? '<tr><td colspan="10"><div class="empty"><div class="ei">📭</div><div class="et">ยังไม่มีข้อมูล</div></div></td></tr>'
+    : feed.map(r=>`<tr>
+        <td><span class="mono">${fmtTime(r.timestamp)}</span></td>
+        <td><span class="slot-tag">${r.timeSlot||'—'}</span></td>
+        <td><strong>${r.line||'—'}</strong></td>
+        <td><span class="mono">${r.orderCode||'—'}</span></td>
+        <td>${r.customer||'—'}</td>
+        <td>${r.product||'—'}</td>
+        <td><span class="num">${r.minuteCount||0}</span></td>
+        <td><span class="num">${r.dailyTotal||0}</span></td>
+        <td><span class="badge ${r.status==='เสร็จแล้ว'?'done':'pend'}">${r.status==='เสร็จแล้ว'?'✅':'🔴'} ${r.status||'—'}</span></td>
+        <td style="font-size:12px;color:var(--muted)">${r.notes||'—'}</td>
+      </tr>`).join('');
+
+  // สรุปรายช่วงเวลา (ใช้ข้อมูลวันนี้ทั้งหมดเสมอ)
+  const sm = {};
+  today.forEach(r=>{
+    const k = r.timeSlot || 'ไม่ระบุ';
+    if(!sm[k]) sm[k]={c:0,q:0,m:0,d:0,p:0};
+    sm[k].c++; sm[k].q+=parseInt(r.dailyTotal)||0; sm[k].m+=parseFloat(r.minuteCount)||0;
+    if(r.status==='เสร็จแล้ว') sm[k].d++; else sm[k].p++;
+  });
+  const se = Object.entries(sm).sort((a,b)=>a[0].localeCompare(b[0]));
+  document.getElementById('slot-sum-body').innerHTML = se.length === 0
+    ? '<tr><td colspan="6"><div class="empty"><div class="ei">📭</div><div class="et">ยังไม่มีข้อมูล</div></div></td></tr>'
+    : se.map(([s,d])=>`<tr>
+        <td><span class="slot-tag">${s}</span></td>
+        <td><span class="num">${d.c}</span></td>
+        <td><span class="num">${d.q.toLocaleString()}</span></td>
+        <td><span class="num">${d.m}</span></td>
+        <td><span style="color:var(--green);font-weight:600">${d.d}</span></td>
+        <td><span style="color:var(--red);font-weight:600">${d.p}</span></td>
+      </tr>`).join('');
+}
+
+function fetchSheet() {
+  return new Promise((resolve, reject) => {
+    const cb = 'cb_' + Date.now();
+    const s = document.createElement('script');
+    const timer = setTimeout(() => { reject(new Error('timeout')); s.remove(); delete window[cb]; }, 12000);
+    window[cb] = (data) => { clearTimeout(timer); resolve(data); s.remove(); delete window[cb]; };
+    s.onerror = () => { clearTimeout(timer); reject(new Error('load error')); };
+    s.src = SHEET_URL + '?callback=' + cb;
+    document.head.appendChild(s);
+  });
+}
+
+async function loadData() {
+  if (SHEET_URL === "YOUR_APPS_SCRIPT_URL_HERE") return;
+  const btn = document.getElementById('refBtn');
+  btn.disabled = true; btn.textContent = '⟳ กำลังโหลด...';
+  document.getElementById('t-upd').textContent = 'กำลังโหลด...';
+  try {
+    allData = await fetchSheet();
+    renderData(allData);
+    document.getElementById('t-upd').textContent = 'อัปเดต ' + new Date().toLocaleTimeString('th-TH');
+  } catch(err) {
+    document.getElementById('t-upd').textContent = 'โหลดไม่สำเร็จ ลองใหม่';
+    console.error(err);
+  }
+  btn.disabled = false; btn.textContent = '⟳ รีเฟรช';
+}
+
+loadData();
+setInterval(loadData, 15000);
+</script>
+</body>
+</html>
